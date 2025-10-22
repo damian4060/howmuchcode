@@ -12,29 +12,33 @@ lang_dict = {
               "php" : "PHP",
               "py"  : "PYTHON",
               "sh"  : "BASH",
+              "oth" : "OTHERS"
             }
 line_dict = {
                "C/C++"  : int(),
                "PYTHON" : int(),
                "BASH"   : int(),
-               "PHP"    : int()
+               "PHP"    : int(),
+               "OTHERS" : int()
     
-}
+}    
 
 def how_much():
     for path,_,files in os.walk(def_path):
         for file in files:
             format_end = os.path.splitext(file)[-1].split('.')[-1]
             if format_end not in lang_dict.keys():
-                continue
+                format_end = 'oth'
             full_name = f"{path}/{file}"
-            with open(full_name,'r') as f:
-                content = f.readlines()
-                for line in content:
+            try:
+                with open(full_name,'r') as f:
+                    content = f.readlines()
+                    for line in content:
                         
-                    if len(line.strip()) !=0:
-                        line_dict[lang_dict[format_end]] += 1
-            
+                        if len(line.strip()) !=0:
+                            line_dict[lang_dict[format_end]] += 1
+            except UnicodeDecodeError:
+                pass
        
 def erase_dict(dictionary):
     for key,_ in dictionary.items():
@@ -47,6 +51,8 @@ def visulation():
     max_dict_val = max(line_dict.values())
     line_dict = dict(sorted(line_dict.items(),key= lambda x: x[1],reverse=True))
     for key,value in line_dict.items():
+        if value == 0:
+            continue
         col, _ = os.get_terminal_size()
         if value == max_dict_val:
             val = int((value/max_dict_val)*col - len(f"{key}:{value} ") -1 )
